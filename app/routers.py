@@ -10,17 +10,20 @@ import markdown
 import qrcode
 import requests
 from bs4 import BeautifulSoup
-from fastapi import APIRouter, HTTPException, File, UploadFile
+from fastapi import APIRouter, HTTPException, File, UploadFile, Depends
 from nltk.corpus import stopwords
 from nltk.tokenize import sent_tokenize, word_tokenize
 
 # Local Imports
 from . import models
+from . import security
 
 # Initialize Router
 router = APIRouter(
     prefix="/api/v1",
-    tags=["Utilities"]
+    tags=["Utilities"],
+    # This line applies our security check to every endpoint in this router
+    dependencies=[Depends(security.verify_rapidapi_secret)]
 )
 
 # --- API Endpoints ---
