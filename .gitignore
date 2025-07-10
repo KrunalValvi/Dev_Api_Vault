@@ -20,3 +20,33 @@ Thumbs.db
 
 # Environment variables
 .env
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.tox/
+
+# Documentation
+docs/_build/
+docs/.doctrees/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/

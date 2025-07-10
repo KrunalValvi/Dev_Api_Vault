@@ -7,6 +7,6 @@ pip install -r requirements.txt
 
 echo "Downloading NLTK data..."
 # Run NLTK downloader
-python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab'); nltk.download('stopwords')"
 
 echo "Build complete."
