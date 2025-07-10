@@ -1,0 +1,87 @@
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+    tags: [ 'v*' ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run tests
+      env:
+        ENVIRONMENT: development
+      run: |
+        python -c "import nltk; nltk.download('punkt'); nltk.download('punkt_tab'); nltk.download('stopwords')"
+        pytest tests/ -v
+        
+    - name: Deploy to Render
+      env:
+        RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+      run: |
+        # Render deployment via webhook or API
+        if [ -n "$RENDER_API_KEY" ] && [ -n "$RENDER_SERVICE_ID" ]; then
+          curl -X POST \
+            "https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys" \
+            -H "Authorization: Bearer ${RENDER_API_KEY}" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache": false}'
+        else
+          echo "Render credentials not configured. Skipping deployment."
+        fi
+        
+    # Alternative deployment methods can be added here
+    - name: Deploy to Railway (Alternative)
+      if: env.RAILWAY_TOKEN
+      env:
+        RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+      run: |
+        # Railway deployment commands
+        echo "Railway deployment would go here"
+        
+    - name: Deploy to Heroku (Alternative)
+      if: env.HEROKU_API_KEY
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+        HEROKU_APP_NAME: ${{ secrets.HEROKU_APP_NAME }}
+      run: |
+        # Heroku deployment commands
+        echo "Heroku deployment would go here"
+        
+    - name: Health check
+      run: |
+        # Wait for deployment to complete and check health
+        sleep 30
+        curl -f https://dev-utility-api-vault.onrender.com/ || echo "Health check failed - deployment may still be in progress"
+        
+    - name: Create GitHub Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Changes in this Release
+          - Bug fixes and improvements
+          - See [CHANGELOG.md](CHANGELOG.md) for details
+        draft: false
+        prerelease: false

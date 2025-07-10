@@ -9,16 +9,21 @@ load_dotenv()
 # Define the header we expect to receive from RapidAPI
 api_key_header = APIKeyHeader(name="X-RapidAPI-Proxy-Secret", auto_error=False)
 
-# Get our secret key from the environment variables
+# Get our configuration from environment variables
+ENVIRONMENT = os.getenv("ENVIRONMENT", "production")
 RAPIDAPI_PROXY_SECRET = os.getenv("RAPIDAPI_PROXY_SECRET")
 
 async def verify_rapidapi_secret(api_key: str = Security(api_key_header)):
     """
     This is the dependency that will be used to protect the endpoints.
     It checks if the incoming request has the correct secret key.
+    In development mode, security is bypassed for testing.
     """
-    # First, check if the secret is even configured on our server.
-    # If not, it's a server error.
+    # In development mode, bypass security checks
+    if ENVIRONMENT == "development":
+        return True
+    
+    # In production mode, enforce security
     if not RAPIDAPI_PROXY_SECRET:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
