@@ -228,7 +228,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - 🐛 **Bug Reports:** [GitHub Issues](https://github.com/KrunalValvi/Dev_Api_Vault/issues)
 - 💡 **Feature Requests:** [GitHub Issues](https://github.com/KrunalValvi/Dev_Api_Vault/issues)
 - 💬 **Discussions:** [GitHub Discussions](https://github.com/KrunalValvi/Dev_Api_Vault/discussions)
-- 📧 **Contact:** [krunalvalvi05@gmail.com]
+- 📧 **Contact:** krunalvalvi05@gmail.com
 
 ---
 
