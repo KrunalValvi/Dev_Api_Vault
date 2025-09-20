@@ -1,37 +1,75 @@
-import os
+"""
+Security module for Dev API Vault.
+Handles authentication, rate limiting, and security middleware.
+"""
+
+import logging
 from fastapi import Security, HTTPException, status
 from fastapi.security import APIKeyHeader
-from dotenv import load_dotenv
 
-# This line loads the environment variables from your .env file
-load_dotenv()
+from .config import settings
+
+logger = logging.getLogger(__name__)
 
 # Define the header we expect to receive from RapidAPI
 api_key_header = APIKeyHeader(name="X-RapidAPI-Proxy-Secret", auto_error=False)
 
-# Get our secret key from the environment variables
-RAPIDAPI_PROXY_SECRET = os.getenv("RAPIDAPI_PROXY_SECRET")
 
 async def verify_rapidapi_secret(api_key: str = Security(api_key_header)):
     """
-    This is the dependency that will be used to protect the endpoints.
-    It checks if the incoming request has the correct secret key.
+    Dependency to verify RapidAPI secret key.
+    
+    This function protects endpoints by checking the incoming request
+    for the correct secret key in the X-RapidAPI-Proxy-Secret header.
+    
+    Args:
+        api_key (str): The API key from the request header
+        
+    Returns:
+        bool: True if authentication is successful
+        
+    Raises:
+        HTTPException: If authentication fails or secret is not configured
     """
-    # First, check if the secret is even configured on our server.
-    # If not, it's a server error.
-    if not RAPIDAPI_PROXY_SECRET:
+    # Skip authentication in development mode if no secret is set
+    if settings.is_development and not settings.rapidapi_proxy_secret:
+        logger.warning("Development mode: Skipping API key verification")
+        return True
+    
+    # Check if the secret is configured on our server
+    if not settings.rapidapi_proxy_secret:
+        logger.error("API secret not configured on the server")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="API secret not configured on the server."
         )
 
-    # Check if the header was provided and if it matches our secret.
-    # If not, the request is forbidden.
-    if not api_key or api_key != RAPIDAPI_PROXY_SECRET:
+    # Check if the header was provided and if it matches our secret
+    if not api_key or api_key != settings.rapidapi_proxy_secret:
+        logger.warning(f"Invalid API key attempt from request")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid or missing API secret."
         )
     
-    # If the key is valid, the request is allowed to proceed.
+    logger.debug("API key verification successful")
     return True
+
+
+async def optional_rapidapi_secret(api_key: str = Security(api_key_header)):
+    """
+    Optional dependency for endpoints that don't require authentication.
+    
+    This can be used for public endpoints that optionally accept
+    authentication for enhanced features.
+    
+    Args:
+        api_key (str): The API key from the request header
+        
+    Returns:
+        bool: True if authenticated, False if not
+    """
+    if not api_key or not settings.rapidapi_proxy_secret:
+        return False
+    
+    return api_key == settings.rapidapi_proxy_secret

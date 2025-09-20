@@ -80,9 +80,10 @@ html_output = response.json()["html"]
 
 ### Option 1: Use the Live API (Recommended)
 ```bash
-curl -X POST "https://dev-utility-api-vault.onrender.com/qr-code" \
+curl -X POST "https://dev-utility-api-vault.onrender.com/api/v1/qr-code" \
      -H "Content-Type: application/json" \
-     -d '{"text": "Your text here"}'
+     -H "X-RapidAPI-Proxy-Secret: your_secret_key" \
+     -d '{"data": "Your text here"}'
 ```
 
 ### Option 2: Local Development Setup
@@ -98,6 +99,16 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # 3. Install dependencies
 pip install -r requirements.txt
+
+# 4. Configure environment
+cp .env.example .env
+# Edit .env file with your configuration
+
+# 5. Download NLTK data
+python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
+
+# 6. Run the application
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 # 4. Download NLTK data
 python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
