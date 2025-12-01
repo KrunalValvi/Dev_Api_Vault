@@ -3,6 +3,75 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Local development
+.venv/
+venv/
+ENV/
+
+# IDE specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Local configuration
+local_settings.py
+db.sqlite3
+
+# Logs
+*.log
+
+# Coverage reports
+htmlcov/
+.coverage
+.coverage.*
+
+# Test artifacts
+.pytest_cache/
+.mypy_cache/
+
+# Build and distribution
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+.env/
+.venv/
+venv/
+ENV/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Project specific
+static/
+!static/.gitkeep
+
 # C extensions
 *.so
 
