@@ -6,14 +6,20 @@ including markdown conversion, QR code generation, image processing, and more.
 """
 
 import logging
+import time
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, status, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
+from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.requests import Request as StarletteRequest
 
-from . import routers
+from . import routers, __version__
 from .config import settings
+from .openapi import API_METADATA, get_openapi_tags, get_operation_config, get_secure_operation_config
 
 
 # Configure logging
@@ -53,32 +59,101 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down Dev API Vault...")
 
 
-# Initialize FastAPI App
+# Custom exception handler for rate limiting
+class RateLimitExceeded(HTTPException):
+    def __init__(self, detail: str, retry_after: int):
+        super().__init__(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=detail,
+            headers={"Retry-After": str(retry_after)},
+        )
+
+# Rate limiting middleware
+class RateLimiterMiddleware(BaseHTTPMiddleware):
+    def __init__(self, app, limit: int = 100, window: int = 3600):
+        super().__init__(app)
+        self.limit = limit
+        self.window = window
+        self.requests = {}
+
+    async def dispatch(self, request: StarletteRequest, call_next):
+        # Skip rate limiting for health checks and docs
+        if request.url.path in ["/health", "/docs", "/redoc", "/openapi.json"]:
+            return await call_next(request)
+            
+        client_ip = request.client.host
+        current_time = int(time.time())
+        
+        # Clean up old entries
+        for ip in list(self.requests.keys()):
+            if current_time - self.requests[ip]["timestamp"] > self.window:
+                del self.requests[ip]
+        
+        # Initialize or update request count
+        if client_ip not in self.requests:
+            self.requests[client_ip] = {"count": 1, "timestamp": current_time}
+        else:
+            self.requests[client_ip]["count"] += 1
+        
+        # Check rate limit
+        if self.requests[client_ip]["count"] > self.limit:
+            retry_after = self.window - (current_time - self.requests[client_ip]["timestamp"])
+            raise RateLimitExceeded(
+                detail=f"Rate limit exceeded. Try again in {retry_after} seconds.",
+                retry_after=retry_after
+            )
+        
+        # Add rate limit headers to response
+        response = await call_next(request)
+        response.headers["X-RateLimit-Limit"] = str(self.limit)
+        response.headers["X-RateLimit-Remaining"] = str(self.limit - self.requests[client_ip]["count"])
+        response.headers["X-RateLimit-Reset"] = str(self.requests[client_ip]["timestamp"] + self.window)
+        
+        return response
+
+# Initialize FastAPI App with enhanced OpenAPI documentation
 app = FastAPI(
-    title=settings.api_title,
-    description=settings.api_description,
-    version=settings.api_version,
-    lifespan=lifespan,
+    **API_METADATA,
+    version=__version__,
     debug=settings.debug,
-    contact={
-        "name": "API Support",
-        "url": "https://github.com/KrunalValvi/Dev_Api_Vault",
-    },
-    license_info={
-        "name": "MIT",
-        "url": "https://opensource.org/licenses/MIT",
-    },
-    docs_url="/docs" if not settings.is_production else None,
-    redoc_url="/redoc" if not settings.is_production else None,
+    openapi_tags=get_openapi_tags(),
+    docs_url=None,  # We'll serve custom docs
+    redoc_url=None,  # We'll serve custom ReDoc
+    openapi_url="/openapi.json" if not settings.is_production else None,
+    default_response_class=JSONResponse,
+    lifespan=lifespan,
+    root_path=settings.root_path or ""
 )
 
-# Add CORS middleware
+# Serve static files for custom docs
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Custom docs endpoints
+@app.get("/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    return get_swagger_ui_html(
+        openapi_url="/openapi.json",
+        title=f"{app.title} - Swagger UI",
+        swagger_js_url="/static/swagger-ui-bundle.js",
+        swagger_css_url="/static/swagger-ui.css",
+    )
+
+@app.get("/redoc", include_in_schema=False)
+async def redoc_html():
+    return get_redoc_html(
+        openapi_url="/openapi.json",
+        title=f"{app.title} - ReDoc",
+        redoc_js_url="/static/redoc.standalone.js",
+    )
+
+# Add middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins,
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["X-RateLimit-Limit", "X-RateLimit-Remaining", "X-RateLimit-Reset"]
 )
 
 # Add trusted host middleware for production
@@ -89,11 +164,41 @@ if settings.is_production:
     )
 
 # Add rate limiting middleware
-from .middleware import RateLimitMiddleware
-app.add_middleware(RateLimitMiddleware)
+app.add_middleware(RateLimiterMiddleware, limit=100, window=3600)  # 100 requests per hour
 
-# Include the router from routers.py
-app.include_router(routers.router)
+# Include the router with operation configuration
+app.include_router(
+    routers.router,
+    **get_secure_operation_config()
+)
+
+# Override the default OpenAPI schema
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    
+    openapi_schema = app.openapi()
+    
+    # Add security scheme
+    openapi_schema["components"]["securitySchemes"] = {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "X-RapidAPI-Proxy-Secret",
+            "description": "API key for authentication"
+        }
+    }
+    
+    # Add security to all operations
+    for path in openapi_schema["paths"].values():
+        for method in path.values():
+            if method.get("security") is None:
+                method["security"] = [{"ApiKeyAuth": []}]
+    
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
 
 
 # Enhanced exception handlers
