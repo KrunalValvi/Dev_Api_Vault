@@ -1,7 +1,212 @@
 <div align="center">
 
+<div align="center">
+
 # 🛠️ Dev API Vault
 ### *Your Swiss Army Knife for Developer Utilities*
+
+[![Python](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-00a393.svg?logo=fastapi)](https://fastapi.tiangolo.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code Style: Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Tests](https://github.com/KrunalValvi/Dev_Api_Vault/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/KrunalValvi/Dev_Api_Vault/actions)
+[![codecov](https://codecov.io/gh/KrunalValvi/Dev_Api_Vault/graph/badge.svg?token=YOUR_TOKEN_HERE)](https://codecov.io/gh/KrunalValvi/Dev_Api_Vault)
+
+[![Open in Dev Containers](https://img.shields.io/static/v1?label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/KrunalValvi/Dev_Api_Vault)
+[![Open in GitHub Codespaces](https://img.shields.io/badge/GitHub_Codespaces-Open-blue?logo=github)](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=KrunalValvi/Dev_Api_Vault)
+
+</div>
+
+## 🚀 Overview
+
+Dev API Vault is a **production-ready** FastAPI application that consolidates essential developer utilities into a single, powerful API. It's designed to help developers streamline their workflow with commonly needed tools accessible via RESTful endpoints.
+
+## ✨ Features
+
+- **Markdown to HTML Converter** - Convert markdown text to clean HTML
+- **QR Code Generator** - Generate QR codes from text or URLs
+- **Image to Base64** - Convert images to base64 encoded strings
+- **Regex Tester** - Test and validate regular expressions
+- **Webpage Word Counter** - Count words from any webpage URL
+- **Text Summarizer** - Generate concise summaries from large text blocks
+- **RESTful API** - Easy-to-use endpoints with proper HTTP methods
+- **Rate Limiting** - Built-in rate limiting for API protection
+- **Comprehensive Documentation** - Interactive API docs with OpenAPI/Swagger
+- **Production Ready** - Containerized with Docker and deployable anywhere
+
+## 🎯 Use Cases
+
+- Quickly generate QR codes for URLs or text
+- Convert documentation from Markdown to HTML
+- Process images in API workflows
+- Test and debug regular expressions
+- Analyze web content programmatically
+- Summarize articles or documentation
+- Educational purposes for learning FastAPI
+
+## 🛠️ Tech Stack
+
+- **Backend Framework**: [FastAPI](https://fastapi.tiangolo.com/)
+- **Language**: Python 3.9+
+- **API Documentation**: OpenAPI (Swagger UI & ReDoc)
+- **Testing**: Pytest, HTTPX
+- **Code Quality**: Black, isort, Flake8, mypy
+- **Containerization**: Docker
+- **CI/CD**: GitHub Actions
+- **Deployment**: Render (or any cloud provider)
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.9 or higher
+- pip (Python package manager)
+- Git
+- (Optional) Docker & Docker Compose
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/KrunalValvi/Dev_Api_Vault.git
+   cd Dev_Api_Vault
+   ```
+
+2. **Set up a virtual environment**
+   ```bash
+   # Windows
+   python -m venv venv
+   .\venv\Scripts\activate
+   
+   # macOS/Linux
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
+
+3. **Install dependencies**
+   ```bash
+   pip install --upgrade pip
+   pip install -r requirements.txt
+   ```
+
+4. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+5. **Run the application**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+
+6. **Access the API documentation**
+   - Swagger UI: http://localhost:8000/docs
+   - ReDoc: http://localhost:8000/redoc
+
+### Using Docker
+
+```bash
+# Build the Docker image
+docker build -t dev-api-vault .
+
+# Run the container
+docker run -d --name dev-api-vault -p 8000:80 dev-api-vault
+```
+
+## 📚 API Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/markdown-to-html` | POST | Convert markdown to HTML |
+| `/api/v1/qr-code` | POST | Generate QR code from text |
+| `/api/v1/image-to-base64` | POST | Convert image to base64 |
+| `/api/v1/regex-tester` | POST | Test regular expressions |
+| `/api/v1/word-count` | GET | Count words in a webpage |
+| `/api/v1/summarize` | POST | Generate text summary |
+
+For detailed API documentation, visit the interactive [Swagger UI](http://localhost:8000/docs) after starting the server.
+
+## 🧪 Running Tests
+
+```bash
+# Install test dependencies
+pip install -r requirements-dev.txt
+
+# Run tests
+pytest
+
+# Run with coverage
+pytest --cov=app --cov-report=term-missing
+
+# Run linters
+black .
+flake8
+mypy .
+```
+
+## 📂 Project Structure
+
+```
+Dev_Api_Vault/
+├── .github/                  # GitHub configuration
+│   └── workflows/            # GitHub Actions workflows
+├── app/                      # Application source code
+│   ├── __init__.py           # Package initialization
+│   ├── main.py               # FastAPI application
+│   ├── config.py             # Configuration settings
+│   ├── models.py             # Pydantic models
+│   ├── routers.py            # API routes
+│   ├── security.py           # Authentication & security
+│   └── utils.py              # Utility functions
+├── static/                   # Static files
+├── tests/                    # Test files
+│   ├── __init__.py
+│   ├── conftest.py
+│   ├── test_api.py
+│   └── test_edge_cases.py
+├── .env.example              # Example environment variables
+├── .gitignore                # Git ignore file
+├── docker-compose.yml        # Docker Compose configuration
+├── Dockerfile                # Docker configuration
+├── pyproject.toml            # Project configuration
+├── README.md                 # This file
+└── requirements.txt          # Project dependencies
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📝 Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for a list of notable changes.
+
+## 📧 Contact
+
+Krunal Valvi - [@krunalvalvi](https://twitter.com/krunalvalvi)
+
+Project Link: [https://github.com/KrunalValvi/Dev_Api_Vault](https://github.com/KrunalValvi/Dev_Api_Vault)
+
+## 🔍 Keywords
+
+`fastapi`, `python`, `api`, `developer-tools`, `rest-api`, `markdown`, `qrcode`, `regex`, `text-processing`, `web-development`, `open-source`, `docker`, `github-actions`, `api-documentation`, `swagger`, `redoc`, `backend`, `web-services`, `automation`, `productivity-tools`, `devops`
+
+---
+
+<div align="center">
+  Made with ❤️ by Krunal Valvi
+</div>
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-00a393?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.9+-blue?style=flat-square&logo=python)](https://python.org/)
@@ -16,181 +221,12 @@
 
 ---
 
-## ✨ What is Dev API Vault?
+## 📚 Additional Documentation
 
-Dev API Vault is a **production-ready FastAPI application** that consolidates 6 essential developer utilities into a single, powerful API. Whether you're building applications, automating workflows, or need quick utility functions, this vault has you covered.
-
-### 🎯 Perfect for:
-- **Developers** building applications that need utility functions
-- **Automation enthusiasts** creating workflows and scripts
-- **Learning FastAPI** through practical, real-world examples
-- **Microservices architecture** as a utility service component
-
----
-
-## 🚀 Key Features
-
-| Feature | Description | Use Case |
-|---------|-------------|----------|
-| 📝 **Markdown to HTML** | Convert Markdown text to clean HTML | Documentation, blogs, README rendering |
-| 🔲 **QR Code Generator** | Generate QR codes as base64 PNG images | Sharing links, contact info, payments |
-| 🖼️ **Image to Base64** | Convert uploaded images to base64 strings | Data URIs, embedded images, APIs |
-| 🔍 **Regex Tester** | Test regex patterns against text strings | Pattern validation, text processing |
-| 📊 **Webpage Word Counter** | Scrape and analyze webpage content | Content analysis, SEO research |
-| 📄 **Text Summarizer** | Extract key sentences from large text blocks | Content summarization, data processing |
-
----
-
-## 🎬 Quick Demo
-
-```python
-import requests
-
-# Generate a QR code
-response = requests.post(
-    "https://dev-utility-api-vault.onrender.com/qr-code",
-    json={"text": "Hello, World!"}
-)
-qr_data = response.json()["qr_code_base64"]
-
-# Convert Markdown to HTML
-response = requests.post(
-    "https://dev-utility-api-vault.onrender.com/markdown-to-html",
-    json={"markdown": "# Hello **World**!"}
-)
-html_output = response.json()["html"]
-```
-
----
-
-## 🛠️ Technology Stack
-
-<div align="center">
-
-| Backend | Testing | Deployment | Libraries |
-|---------|---------|------------|-----------|
-| ![FastAPI](https://img.shields.io/badge/FastAPI-00a393?style=for-the-badge&logo=fastapi&logoColor=white) | ![Pytest](https://img.shields.io/badge/Pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white) | ![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render&logoColor=white) | ![NLTK](https://img.shields.io/badge/NLTK-85C1E9?style=for-the-badge) |
-| ![Uvicorn](https://img.shields.io/badge/Uvicorn-2E8B57?style=for-the-badge) | ![HTTPX](https://img.shields.io/badge/HTTPX-007ACC?style=for-the-badge) | ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white) | ![BeautifulSoup](https://img.shields.io/badge/BeautifulSoup-FF6B6B?style=for-the-badge) |
-
-</div>
-
----
-
-## 🚀 Quick Start
-
-### Option 1: Use the Live API (Recommended)
-```bash
-curl -X POST "https://dev-utility-api-vault.onrender.com/api/v1/qr-code" \
-     -H "Content-Type: application/json" \
-     -H "X-RapidAPI-Proxy-Secret: your_secret_key" \
-     -d '{"data": "Your text here"}'
-```
-
-### Option 2: Local Development Setup
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/KrunalValvi/Dev_Api_Vault.git
-cd Dev_Api_Vault
-
-# 2. Set up Python environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Configure environment
-cp .env.example .env
-# Edit .env file with your configuration
-
-# 5. Download NLTK data
-python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
-
-# 6. Run the application
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-
-# 4. Download NLTK data
-python -c "import nltk; nltk.download('punkt'); nltk.download('stopwords')"
-
-# 5. Run the server
-uvicorn app.main:app --reload
-
-# 6. Access the API
-# API: http://127.0.0.1:8000
-# Docs: http://127.0.0.1:8000/docs
-```
-
----
-
-## 📁 Project Structure
-
-```
-Dev_Api_Vault/
-├── app/
-│   ├── main.py              # FastAPI application entry point
-│   ├── models/              # Pydantic models for request/response
-│   ├── routers/             # API route handlers
-│   └── services/            # Business logic and utilities
-├── tests/                   # Comprehensive test suite
-├── requirements.txt         # Python dependencies
-├── build.sh                # Setup script for NLTK data
-├── Dockerfile              # Container configuration
-├── docker-compose.yml      # Multi-container setup
-└── README.md               # You are here!
-```
-
----
-
-## 🔧 API Endpoints
-
-### Base URL: `https://dev-utility-api-vault.onrender.com`
-
-| Endpoint | Method | Description | Example |
-|----------|--------|-------------|---------|
-| `/markdown-to-html` | POST | Convert Markdown to HTML | `{"markdown": "# Title"}` |
-| `/qr-code` | POST | Generate QR code | `{"text": "Hello World"}` |
-| `/image-to-base64` | POST | Convert image to base64 | Upload image file |
-| `/regex-test` | POST | Test regex patterns | `{"pattern": "\\d+", "text": "123"}` |
-| `/webpage-word-count` | POST | Count webpage words | `{"url": "https://example.com"}` |
-| `/text-summarize` | POST | Summarize text | `{"text": "Long text..."}` |
-
-**📖 [Full API Documentation](https://dev-utility-api-vault.onrender.com/docs)**
-
----
-
-## 🧪 Testing & Quality
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=app
-
-# Run specific test file
-pytest tests/test_endpoints.py -v
-```
-
-**Quality Metrics:**
-- ✅ 95%+ Test Coverage
-- ✅ Type Hints Throughout
-- ✅ Comprehensive Error Handling
-- ✅ API Rate Limiting
-- ✅ Input Validation
-
----
-
-## 🐳 Docker Deployment
-
-```bash
-# Build and run with Docker
-docker build -t dev-api-vault .
-docker run -p 8000:8000 dev-api-vault
-
-# Or use docker-compose
-docker-compose up -d
-```
+- **[Architecture Overview](ARCHITECTURE.md)** - System design and component details
+- **[Contributing Guidelines](CONTRIBUTING.md)** - How to contribute to the project
+- **[Development Guide](DEVELOPMENT.md)** - Local development setup
+- **[API Reference](API_REFERENCE.md)** - Detailed endpoint documentation
 
 ---
 
